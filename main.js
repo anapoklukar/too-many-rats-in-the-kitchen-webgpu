@@ -27,31 +27,31 @@ await gltfLoader.load('common/models/kitchen.gltf');
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
-camera.addComponent(new OrbitController(camera, document.body, {
+/*camera.addComponent(new OrbitController(camera, document.body, {
     distance: 8,
-}));
+}));*/
 
 const model = scene.find(node => node.getComponentOfType(Model));
-model.addComponent(new RotateAnimator(model, {
+/* model.addComponent(new RotateAnimator(model, {
     startRotation: [0, 0, 0, 1],
     endRotation: [0.7071, 0, 0.7071, 0],
     duration: 5,
     loop: true,
-}));
+})); */
 
 const light = new Node();
 light.addComponent(new Transform({
-    translation: [3, 3, 3],
+    translation: [3, 5, 5],
 }));
 light.addComponent(new Light({
     ambient: 0.3,
 }));
-light.addComponent(new LinearAnimator(light, {
+/*light.addComponent(new LinearAnimator(light, {
     startPosition: [3, 3, 3],
     endPosition: [-3, -3, -3],
     duration: 1,
     loop: true,
-}));
+}));*/
 scene.addChild(light);
 
 function update(time, dt) {
