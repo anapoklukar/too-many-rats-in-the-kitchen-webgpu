@@ -32,6 +32,7 @@ const camera = scene.find(node => node.getComponentOfType(Camera));
 }));*/
 
 const model = scene.find(node => node.getComponentOfType(Model));
+const chef =  gltfLoader.loadNode("Chef");
 /* model.addComponent(new RotateAnimator(model, {
     startRotation: [0, 0, 0, 1],
     endRotation: [0.7071, 0, 0.7071, 0],
