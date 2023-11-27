@@ -55,11 +55,49 @@ light.addComponent(new Light({
 }));*/
 scene.addChild(light);
 
+// chef's position
+let chefPosition = [0, 0, 1];
+// chef's movement speed
+const chefSpeed = 1;
+chef.addComponent(new LinearAnimator(chef, {
+    startPosition: [0, 0, 1],
+    endPosition: [...chefPosition],
+    duration: 0.1,
+    loop: false,
+}));
+
+// listening for keydown event (chef movement)
+document.addEventListener('keydown', handleKeyDown);
+function handleKeyDown(event) {
+    console.log(event.key);
+    // updating chef's position
+    switch (event.key) {
+        case 'w':
+            chefPosition[2] -= chefSpeed;
+            break;
+        case 'a':
+            chefPosition[0] -= chefSpeed;
+            break;
+        case 's':
+            chefPosition[2] += chefSpeed;
+            break;
+        case 'd':
+            chefPosition[0] += chefSpeed;
+            break;
+    }
+}
+
 function update(time, dt) {
     scene.traverse(node => {
         for (const component of node.components) {
             component.update?.(time, dt);
         }
+    });
+    
+    // updating chef's position
+    chef.components.forEach(component => {
+        component.endPosition = [...chefPosition];
+        component.update?.(time, dt);
     });
 }
 
