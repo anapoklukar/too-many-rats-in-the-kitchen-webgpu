@@ -16,6 +16,11 @@ import {
 
 import { Renderer } from './Renderer.js';
 import { Light } from './Light.js';
+import { Physics } from './common/engine/core/Physics.js';
+import {
+    calculateAxisAlignedBoundingBox,
+    mergeAxisAlignedBoundingBoxes,
+} from './common/engine/core/MeshUtils.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
@@ -24,14 +29,49 @@ await renderer.initialize();
 const gltfLoader = new GLTFLoader();
 await gltfLoader.load('common/models/kitchen.gltf');
 
+// making the kitchen static
+gltfLoader.loadNode("wall").isStatic = true;
+gltfLoader.loadNode("wall_orderwindow").isStatic = true;
+gltfLoader.loadNode("wall.001").isStatic = true;
+gltfLoader.loadNode("wall.002").isStatic = true;
+gltfLoader.loadNode("wall.003").isStatic = true;
+gltfLoader.loadNode("wall.004").isStatic = true;
+gltfLoader.loadNode("wall.006").isStatic = true;
+gltfLoader.loadNode("wall.007").isStatic = true;
+gltfLoader.loadNode("wall_window_closed").isStatic = true;
+gltfLoader.loadNode("door_B").isStatic = true;
+gltfLoader.loadNode("kitchencounter_sink").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.001").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.002").isStatic = true;
+gltfLoader.loadNode("kitchencounter_innercorner").isStatic = true;
+gltfLoader.loadNode("kitchencounter_innercorner").isStatic = true;
+gltfLoader.loadNode("fridge_B_door").isStatic = true;
+gltfLoader.loadNode("fridge_B").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.003").isStatic = true;
+gltfLoader.loadNode("stove_single").isStatic = true;
+gltfLoader.loadNode("stove_single.001").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.004").isStatic = true;
+gltfLoader.loadNode("kitchentable_B_large").isStatic = true;
+gltfLoader.loadNode("wall_half").isStatic = true;
+gltfLoader.loadNode("wall_half.001").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.005").isStatic = true;
+gltfLoader.loadNode("kitchentable_B_large.001").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.006").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.007").isStatic = true;
+gltfLoader.loadNode("kitchencounter_straight_B.008").isStatic = true;
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
 const camera = scene.find(node => node.getComponentOfType(Camera));
 /*camera.addComponent(new OrbitController(camera, document.body, {
     distance: 8,
 }));*/
+camera.isDynamic = true;
+camera.aabb = {
+    min: [-1, -1, -1],
+    max: [1, 1, 1],
+}
 
-const model = scene.find(node => node.getComponentOfType(Model));
+//const model = scene.find(node => node.getComponentOfType(Model));
 const chef =  gltfLoader.loadNode("Chef");
 /* model.addComponent(new RotateAnimator(model, {
     startRotation: [0, 0, 0, 1],
@@ -39,6 +79,12 @@ const chef =  gltfLoader.loadNode("Chef");
     duration: 5,
     loop: true,
 })); */
+// making chef static
+chef.isDynamic = true;
+chef.aabb = {
+    min: [-1, -1, -1],
+    max: [1, 1, 1],
+}
 
 const light = new Node();
 light.addComponent(new Transform({
@@ -58,7 +104,7 @@ scene.addChild(light);
 // chef's position
 let chefPosition = [0, 0, 1];
 // chef's movement speed
-const chefSpeed = 1;
+const chefSpeed = 0.5;
 chef.addComponent(new LinearAnimator(chef, {
     startPosition: [0, 0, 1],
     endPosition: [...chefPosition],
@@ -69,7 +115,6 @@ chef.addComponent(new LinearAnimator(chef, {
 // listening for keydown event (chef movement)
 document.addEventListener('keydown', handleKeyDown);
 function handleKeyDown(event) {
-    console.log(event.key);
     // updating chef's position
     switch (event.key) {
         case 'w':
@@ -87,6 +132,17 @@ function handleKeyDown(event) {
     }
 }
 
+// adding physics
+const physics = new Physics(scene);
+scene.traverse(node => {
+    const model = node.getComponentOfType(Model);
+    if (!model) {
+        return;
+    }
+    const kitchenItem = model.primitives.map(primitive => calculateAxisAlignedBoundingBox(primitive.mesh));
+    node.aabb = mergeAxisAlignedBoundingBoxes(kitchenItem);
+});
+
 function update(time, dt) {
     scene.traverse(node => {
         for (const component of node.components) {
@@ -99,6 +155,9 @@ function update(time, dt) {
         component.endPosition = [...chefPosition];
         component.update?.(time, dt);
     });
+
+    // updating physics
+    physics.update(time, dt);
 }
 
 function render() {

@@ -222,7 +222,7 @@
         },
         {
             "mesh" : 14,
-            "name" : "kitchencounter_innercorner.001",
+            "name" : "kitchencounter_innercorner",
             "rotation" : [
                 0,
                 0.7071068286895752,
