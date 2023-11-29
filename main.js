@@ -112,26 +112,6 @@ chef.addComponent(new LinearAnimator(chef, {
     loop: false,
 }));
 
-// listening for keydown event (chef movement)
-document.addEventListener('keydown', handleKeyDown);
-function handleKeyDown(event) {
-    // updating chef's position
-    switch (event.key) {
-        case 'w':
-            chefPosition[2] -= chefSpeed;
-            break;
-        case 'a':
-            chefPosition[0] -= chefSpeed;
-            break;
-        case 's':
-            chefPosition[2] += chefSpeed;
-            break;
-        case 'd':
-            chefPosition[0] += chefSpeed;
-            break;
-    }
-}
-
 // adding physics
 const physics = new Physics(scene);
 scene.traverse(node => {
@@ -142,6 +122,45 @@ scene.traverse(node => {
     const kitchenItem = model.primitives.map(primitive => calculateAxisAlignedBoundingBox(primitive.mesh));
     node.aabb = mergeAxisAlignedBoundingBoxes(kitchenItem);
 });
+
+// listening for keydown event (chef movement)
+document.addEventListener('keydown', handleKeyDown);
+function handleKeyDown(event) {
+    let newChefPosition = [...chefPosition];
+    // updating chef's position
+    switch (event.key) {
+        case 'w':
+            newChefPosition[2] -= chefSpeed;
+            break;
+        case 'a':
+            newChefPosition[0] -= chefSpeed;
+            break;
+        case 's':
+            newChefPosition[2] += chefSpeed;
+            break;
+        case 'd':
+            newChefPosition[0] += chefSpeed;
+            break;
+    }
+
+    // checking if chef's position is valid
+    let validPosition = true;
+    scene.traverse(node => {
+        if (node.isStatic) {
+            const aabb = physics.getTransformedAABB(node);
+            if (physics.aabbIntersection({ min: newChefPosition, max: newChefPosition }, aabb)) {
+                validPosition = false;
+            }
+        }
+    });
+    
+    if (validPosition) {
+        // checking if chef's position is out of bounds (bottom, where there is no wall)
+        if (newChefPosition[2] < 6) {
+            chefPosition = newChefPosition;
+        }
+    }
+}
 
 function update(time, dt) {
     scene.traverse(node => {
