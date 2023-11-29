@@ -61,31 +61,33 @@ gltfLoader.loadNode("kitchencounter_straight_B.007").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.008").isStatic = true;
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
+// camera
 const camera = scene.find(node => node.getComponentOfType(Camera));
-/*camera.addComponent(new OrbitController(camera, document.body, {
-    distance: 8,
-}));*/
 camera.isDynamic = true;
 camera.aabb = {
     min: [-1, -1, -1],
     max: [1, 1, 1],
 }
 
-//const model = scene.find(node => node.getComponentOfType(Model));
+// chef
 const chef =  gltfLoader.loadNode("Chef");
-/* model.addComponent(new RotateAnimator(model, {
-    startRotation: [0, 0, 0, 1],
-    endRotation: [0.7071, 0, 0.7071, 0],
-    duration: 5,
-    loop: true,
-})); */
-// making chef static
 chef.isDynamic = true;
 chef.aabb = {
     min: [-1, -1, -1],
     max: [1, 1, 1],
 }
+// chef's position
+let chefPosition = [0, 0, 0];
+// chef's movement speed
+const chefSpeed = 0.5;
+chef.addComponent(new LinearAnimator(chef, {
+    startPosition: [0, 0, 0],
+    endPosition: [...chefPosition],
+    duration: 2,
+    loop: false,
+}));
 
+// light
 const light = new Node();
 light.addComponent(new Transform({
     translation: [3, 5, 5],
@@ -93,24 +95,7 @@ light.addComponent(new Transform({
 light.addComponent(new Light({
     ambient: 0.3,
 }));
-/*light.addComponent(new LinearAnimator(light, {
-    startPosition: [3, 3, 3],
-    endPosition: [-3, -3, -3],
-    duration: 1,
-    loop: true,
-}));*/
 scene.addChild(light);
-
-// chef's position
-let chefPosition = [0, 0, 1];
-// chef's movement speed
-const chefSpeed = 0.5;
-chef.addComponent(new LinearAnimator(chef, {
-    startPosition: [0, 0, 1],
-    endPosition: [...chefPosition],
-    duration: 0.1,
-    loop: false,
-}));
 
 // adding physics
 const physics = new Physics(scene);
@@ -153,7 +138,7 @@ function handleKeyDown(event) {
             }
         }
     });
-    
+
     if (validPosition) {
         // checking if chef's position is out of bounds (bottom, where there is no wall)
         if (newChefPosition[2] < 6) {
