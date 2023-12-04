@@ -118,6 +118,14 @@ for (let i = 0; i < 6; i++) {
         duration: 3,
         loop: false,
     }));
+
+    // add a rotate animator to each rat
+    newRat.addComponent(new RotateAnimator(newRat, {
+        startRotation: [0, 0, 1, 0],
+        endRotation: [0, 0, 1, 0],
+        duration: 0,
+        loop: false,
+    }));
 }
 
 // function for updating the rats' positions
@@ -128,6 +136,8 @@ function updateRats(time, dt) {
 
     const ratTransform = randomRat.getComponentOfType(Transform);
     const ratAnimator = randomRat.getComponentOfType(LinearAnimator);
+    const ratRotateAnimator = randomRat.getComponentOfType(RotateAnimator);
+
     // check if the rat is not currently moving
     if (time >= ratAnimator.startTime + ratAnimator.duration) {
         // set a new position only if the rat is not in motion
@@ -140,9 +150,29 @@ function updateRats(time, dt) {
         ratAnimator.endPosition = newPosition;
         ratAnimator.startTime = time;
         ratAnimator.duration = 3;
+
+        // angle between the rat's current position and the new position
+        const angle = Math.atan2(newPosition[0] - ratTransform.translation[0], newPosition[2] - ratTransform.translation[2]);
+
+        // set a new rotation only if the rat is not in motion
+        const newRotation = [
+            Math.sin((angle + Math.PI /2) / 2),
+            0,
+            Math.cos((angle + Math.PI /2) / 2),
+            0,
+        ];
+        ratRotateAnimator.startRotation = [...ratTransform.rotation];
+        ratRotateAnimator.endRotation = newRotation;
+        ratRotateAnimator.startTime = time;
+        ratRotateAnimator.duration = 0;
+
+        // update the rat's position and rotation
+        ratAnimator.updateNode(0);
+        ratRotateAnimator.updateNode(0);
     } else {
         // if the rat is still moving, update its position and rotation based on the ongoing animation
         ratAnimator.update(time, dt);
+        ratRotateAnimator.update(time, dt);
     }
 }
 
