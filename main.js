@@ -174,15 +174,19 @@ function handleKeyDown(event) {
     // updating chef's position
     switch (event.key) {
         case 'w':
+        case 'W':
             newChefPosition[2] -= chefSpeed;
             break;
         case 'a':
+        case 'A':
             newChefPosition[0] -= chefSpeed;
             break;
         case 's':
+        case 'S':
             newChefPosition[2] += chefSpeed;
             break;
         case 'd':
+        case 'D':
             newChefPosition[0] += chefSpeed;
             break;
     }
