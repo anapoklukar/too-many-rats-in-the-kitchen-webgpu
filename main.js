@@ -87,6 +87,65 @@ chef.addComponent(new LinearAnimator(chef, {
     loop: false,
 }));
 
+// array that stores the rats
+const rats = [];
+
+// creating rats and adding them to the scene
+for (let i = 0; i < 6; i++) {
+    const newRat = gltfLoader.loadNode("Rat.00" + (i));
+    newRat.isDynamic = true;
+
+    // set initial position for each rat
+    newRat.getComponentOfType(Transform).translation = [
+        Math.random() * 10 - 5, // x position between -5 and 5
+        0,
+        Math.random() * 10 - 5, // z position between -5 and 5
+    ];
+
+    // add the rat to the scene
+    scene.addChild(newRat);
+    rats.push(newRat);
+
+    newRat.aabb = {
+        min: [-1, -1, -1],
+        max: [1, 1, 1],
+    }
+
+    // add a linear animator to each rat
+    newRat.addComponent(new LinearAnimator(newRat, {
+        startPosition: newRat.getComponentOfType(Transform).translation,
+        endPosition: newRat.getComponentOfType(Transform).translation,
+        duration: 3,
+        loop: false,
+    }));
+}
+
+// function for updating the rats' positions
+function updateRats(time, dt) {
+    // randomly select an index from the rats array that will be updated
+    const randomIndex = Math.floor(Math.random() * rats.length);
+    const randomRat = rats[randomIndex];
+
+    const ratTransform = randomRat.getComponentOfType(Transform);
+    const ratAnimator = randomRat.getComponentOfType(LinearAnimator);
+    // check if the rat is not currently moving
+    if (time >= ratAnimator.startTime + ratAnimator.duration) {
+        // set a new position only if the rat is not in motion
+        const newPosition = [
+            Math.random() * 10 - 5, // x position between -5 and 5
+            0,
+            Math.random() * 10 - 5, // z position between -5 and 5
+        ];
+        ratAnimator.startPosition = [...ratTransform.translation];
+        ratAnimator.endPosition = newPosition;
+        ratAnimator.startTime = time;
+        ratAnimator.duration = 3;
+    } else {
+        // if the rat is still moving, update its position and rotation based on the ongoing animation
+        ratAnimator.update(time, dt);
+    }
+}
+
 // light
 const light = new Node();
 light.addComponent(new Transform({
@@ -159,6 +218,9 @@ function update(time, dt) {
         component.endPosition = [...chefPosition];
         component.update?.(time, dt);
     });
+
+    // updating rats' positions
+    updateRats(time, dt);
 
     // updating physics
     physics.update(time, dt);
