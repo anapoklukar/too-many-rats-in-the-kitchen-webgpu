@@ -90,6 +90,9 @@ chef.addComponent(new LinearAnimator(chef, {
 // array that stores the rats
 const rats = [];
 
+// array that stores dead rats
+const deadRats = [];
+
 // creating rats and adding them to the scene
 for (let i = 0; i < 6; i++) {
     const newRat = gltfLoader.loadNode("Rat.00" + (i));
@@ -130,6 +133,11 @@ for (let i = 0; i < 6; i++) {
 
 // function for updating the rats' positions
 function updateRats(time, dt) {
+    // check if there are no rats left
+    if (rats.length === 0) {
+        return;
+    }
+
     // randomly select an index from the rats array that will be updated
     const randomIndex = Math.floor(Math.random() * rats.length);
     const randomRat = rats[randomIndex];
@@ -200,44 +208,98 @@ scene.traverse(node => {
 // listening for keydown event (chef movement)
 document.addEventListener('keydown', handleKeyDown);
 function handleKeyDown(event) {
-    let newChefPosition = [...chefPosition];
-    // updating chef's position
-    switch (event.key) {
-        case 'w':
-        case 'W':
-            newChefPosition[2] -= chefSpeed;
-            break;
-        case 'a':
-        case 'A':
-            newChefPosition[0] -= chefSpeed;
-            break;
-        case 's':
-        case 'S':
-            newChefPosition[2] += chefSpeed;
-            break;
-        case 'd':
-        case 'D':
-            newChefPosition[0] += chefSpeed;
-            break;
-    }
+    // checking if the event was to kill a rat (space)
+    if (event.key === ' ') {
+        // check if the chef is near a rat
+        const rat = checkIfNearRat();
+        if (rat != null) {
+            // remove the rat from the scene and from the rats array
+            scene.removeChild(rat);
+            rats.splice(rats.indexOf(rat), 1);
+            deadRats.push(rat);
+        }
 
-    // checking if chef's position is valid
-    let validPosition = true;
-    scene.traverse(node => {
-        if (node.isStatic) {
-            const aabb = physics.getTransformedAABB(node);
-            if (physics.aabbIntersection({ min: newChefPosition, max: newChefPosition }, aabb)) {
-                validPosition = false;
+    } else {
+        let newChefPosition = [...chefPosition];
+        // updating chef's position
+        switch (event.key) {
+            case 'w':
+            case 'W':
+                newChefPosition[2] -= chefSpeed;
+                break;
+            case 'a':
+            case 'A':
+                newChefPosition[0] -= chefSpeed;
+                break;
+            case 's':
+            case 'S':
+                newChefPosition[2] += chefSpeed;
+                break;
+            case 'd':
+            case 'D':
+                newChefPosition[0] += chefSpeed;
+                break;
+        }
+    
+        // checking if chef's position is valid
+        let validPosition = true;
+        scene.traverse(node => {
+            if (node.isStatic) {
+                const aabb = physics.getTransformedAABB(node);
+                if (physics.aabbIntersection({ min: newChefPosition, max: newChefPosition }, aabb)) {
+                    validPosition = false;
+                }
+            }
+        });
+    
+        if (validPosition) {
+            // checking if chef's position is out of bounds (bottom, where there is no wall)
+            if (newChefPosition[2] < 6) {
+                chefPosition = newChefPosition;
             }
         }
-    });
+    }
+}
 
-    if (validPosition) {
-        // checking if chef's position is out of bounds (bottom, where there is no wall)
-        if (newChefPosition[2] < 6) {
-            chefPosition = newChefPosition;
+// function for checking if the chef is near a rat
+function checkIfNearRat() {
+    if (rats.length === 0) {
+        return null;
+    }
+    const chefAABB = physics.getTransformedAABB(chef);
+    for (const rat of rats) {
+        const ratAABB = physics.getTransformedAABB(rat);
+        if (physics.aabbIntersection(chefAABB, ratAABB)) {
+            return rat;
         }
     }
+    return null;
+}
+
+// function for spawning a new rat
+function spawnRat() {
+    // if all rats are alive, return
+    if (deadRats.length === 0) {
+        return;
+    }
+
+    // take the first rat from the deadRats array
+    const respawnRat = deadRats.shift();
+
+    // set its position, under the fridge
+    const respawnRatTransform = respawnRat.getComponentOfType(Transform);
+    const respawnRatAnimator = respawnRat.getComponentOfType(LinearAnimator);
+    respawnRatTransform.translation = [
+        6,
+        0,
+        -3.5,
+    ];
+    respawnRatAnimator.startPosition = [...respawnRatTransform.translation];
+    respawnRatAnimator.endPosition = [...respawnRatTransform.translation];
+
+    // add it to the scene and to the rats array
+    scene.addChild(respawnRat);
+    rats.push(respawnRat);
 }
 
 function update(time, dt) {
@@ -258,6 +320,11 @@ function update(time, dt) {
 
     // updating physics
     physics.update(time, dt);
+
+    // if 5 seconds have passed, spawn a new rat
+    if (deadRats.length > 2) {
+        spawnRat();
+    }
 }
 
 function render() {
