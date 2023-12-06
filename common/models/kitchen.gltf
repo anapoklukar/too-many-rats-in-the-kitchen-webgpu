@@ -93,7 +93,8 @@
                 83,
                 84,
                 85,
-                86
+                86,
+                87
             ]
         }
     ],
@@ -1343,6 +1344,15 @@
                 0.24000000953674316,
                 -12.305103302001953
             ]
+        },
+        {
+            "mesh" : 64,
+            "name" : "Trash",
+            "translation" : [
+                6.446506977081299,
+                -0.0072446465492248535,
+                1.0851837396621704
+            ]
         }
     ],
     "cameras" : [
@@ -2426,6 +2436,20 @@
                     },
                     "indices" : 170,
                     "material" : 0
+                }
+            ]
+        },
+        {
+            "name" : "Cylinder.013",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 219,
+                        "NORMAL" : 220,
+                        "TEXCOORD_0" : 221
+                    },
+                    "indices" : 222,
+                    "material" : 11
                 }
             ]
         }
@@ -4476,6 +4500,40 @@
             "componentType" : 5126,
             "count" : 502,
             "type" : "VEC2"
+        },
+        {
+            "bufferView" : 219,
+            "componentType" : 5126,
+            "count" : 384,
+            "max" : [
+                0.6855189800262451,
+                1.1446229219436646,
+                0.5893174409866333
+            ],
+            "min" : [
+                -0.3781355917453766,
+                -0.030983595177531242,
+                -0.35801786184310913
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 220,
+            "componentType" : 5126,
+            "count" : 384,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 221,
+            "componentType" : 5126,
+            "count" : 384,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 222,
+            "componentType" : 5123,
+            "count" : 780,
+            "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
@@ -5792,6 +5850,30 @@
             "byteLength" : 4016,
             "byteOffset" : 1463052,
             "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 4608,
+            "byteOffset" : 1467068,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 4608,
+            "byteOffset" : 1471676,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 3072,
+            "byteOffset" : 1476284,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1560,
+            "byteOffset" : 1479356,
+            "target" : 34963
         }
     ],
     "samplers" : [
@@ -5802,7 +5884,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 1467068,
+            "byteLength" : 1480916,
             "uri" : "kitchen.bin"
         }
     ]
