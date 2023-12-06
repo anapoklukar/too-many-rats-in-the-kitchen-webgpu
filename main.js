@@ -31,7 +31,6 @@ await gltfLoader.load('common/models/kitchen.gltf');
 
 // making the kitchen static
 gltfLoader.loadNode("wall").isStatic = true;
-gltfLoader.loadNode("wall_orderwindow").isStatic = true;
 gltfLoader.loadNode("wall.001").isStatic = true;
 gltfLoader.loadNode("wall.002").isStatic = true;
 gltfLoader.loadNode("wall.003").isStatic = true;
@@ -48,8 +47,6 @@ gltfLoader.loadNode("kitchencounter_innercorner").isStatic = true;
 gltfLoader.loadNode("fridge_B_door").isStatic = true;
 gltfLoader.loadNode("fridge_B").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.003").isStatic = true;
-gltfLoader.loadNode("stove_single").isStatic = true;
-gltfLoader.loadNode("stove_single.001").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.004").isStatic = true;
 gltfLoader.loadNode("kitchentable_B_large").isStatic = true;
 gltfLoader.loadNode("wall_half").isStatic = true;
@@ -59,6 +56,18 @@ gltfLoader.loadNode("kitchentable_B_large.001").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.006").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.007").isStatic = true;
 gltfLoader.loadNode("kitchencounter_straight_B.008").isStatic = true;
+
+const stove1 = gltfLoader.loadNode("stove_single");
+stove1.isStatic = true;
+const stove2 = gltfLoader.loadNode("stove_single.001");
+stove2.isStatic = true;
+const blender = gltfLoader.loadNode("Blender");
+blender.isStatic = true;
+const window = gltfLoader.loadNode("wall_orderwindow");
+window.isStatic = true;
+const trash = gltfLoader.loadNode("Trash");
+trash.isStatic = true;
+
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
 // camera
@@ -69,23 +78,51 @@ camera.aabb = {
     max: [1, 1, 1],
 }
 
-// chef
-const chef =  gltfLoader.loadNode("Chef");
+// chefs
+const chefs = [];
+
+// Add the initial chef
+const chef = gltfLoader.loadNode("Chef");
+scene.addChild(chef);
+chefs.push(chef);
+let chefPosition = [0, 0, 0];
 chef.isDynamic = true;
 chef.aabb = {
     min: [-1, -1, -1],
     max: [1, 1, 1],
-}
-// chef's position
-let chefPosition = [0, 0, 0];
-// chef's movement speed
-const chefSpeed = 0.5;
+};
 chef.addComponent(new LinearAnimator(chef, {
     startPosition: [0, 0, 0],
     endPosition: [...chefPosition],
-    duration: 2,
+    duration: 0,
     loop: false,
 }));
+const chefSpeed = 0.5
+
+// adding a variable for the current chef
+let currentChef = chef;
+
+// Add the other chefs
+for (let i = 1; i < 4; i++) {
+    let newChef = gltfLoader.loadNode("Chef.00" + i);
+    chefs.push(newChef);
+
+    // Set initial positions for other chefs
+    const newPosition = [0, -5, 0];
+    
+    newChef.isDynamic = true;
+    newChef.aabb = {
+        min: [-1, -1, -1],
+        max: [1, 1, 1],
+    };
+
+    newChef.addComponent(new LinearAnimator(newChef, {
+        startPosition: [0, -5, 0],
+        endPosition: [...newPosition],
+        duration: 0,
+        loop: false,
+    }));
+}
 
 // array that stores the rats
 const rats = [];
@@ -118,7 +155,7 @@ for (let i = 0; i < 6; i++) {
     newRat.addComponent(new LinearAnimator(newRat, {
         startPosition: newRat.getComponentOfType(Transform).translation,
         endPosition: newRat.getComponentOfType(Transform).translation,
-        duration: 3,
+        duration: 0,
         loop: false,
     }));
 
@@ -205,18 +242,192 @@ scene.traverse(node => {
     node.aabb = mergeAxisAlignedBoundingBoxes(kitchenItem);
 });
 
+// array that stores if the utensils are free or not
+const isStoveFree = [true, true];
+const isBlenderFree = [true];
+
+// timers for the utensils in order: stove 1, stove 2, blender
+const timers = [0, 0, 0];
+
 // listening for keydown event (chef movement)
 document.addEventListener('keydown', handleKeyDown);
 function handleKeyDown(event) {
     // checking if the event was to kill a rat (space)
     if (event.key === ' ') {
-        // check if the chef is near a rat
-        const rat = checkIfNearRat();
-        if (rat != null) {
-            // remove the rat from the scene and from the rats array
-            scene.removeChild(rat);
-            rats.splice(rats.indexOf(rat), 1);
-            deadRats.push(rat);
+
+        // check if the chef is near the trash
+        const nearTrash = checkIfNearTrash();
+        if (nearTrash && (currentChef === chefs[1] || currentChef === chefs[2] || currentChef === chefs[3])) {
+            // hide the current chef below the floor
+            currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // change the chef model to the one with no rat
+            currentChef = chefs[0];
+
+            // change the chef[1] model to the position of the current chef
+            currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            return;
+        }
+
+        // checking if this is chef[0], then we can kill a rat
+        if (currentChef === chefs[0]) {
+
+            // if we are near the stove 1, we retrieve the rat from the stove
+            const nearStove1 = checkIfNearStove1();
+            if (nearStove1 && !isStoveFree[0] && timers[0] >= 5) {
+                // set the stove to be free
+                isStoveFree[0] = true;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with the rat steak
+                currentChef = chefs[3];
+
+                // change the chefs[3] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                return;
+            }
+
+            // if we are near the stove 2, we retrieve the rat from the stove
+            const nearStove2 = checkIfNearStove2();
+            if (nearStove2 && !isStoveFree[1] && timers[1] >= 5) {
+                // set the stove to be free
+                isStoveFree[1] = true;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with the rat steak
+                currentChef = chefs[3];
+
+                // change the chef[2] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                return;
+            }
+
+            // if we are near the blender, we retrieve the rat from the blender
+            const nearBlender = checkIfNearBlender();
+            if (nearBlender && !isBlenderFree[0] && timers[2] >= 5) {
+                // set the blender to be free
+                isBlenderFree[0] = true;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with the rat wine
+                currentChef = chefs[2];
+
+                // change the chef[2] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                return;
+            }
+
+            // check if the chef is near a rat
+            const rat = checkIfNearRat();
+            if (rat != null) {
+                // remove the rat from the scene and from the rats array
+                scene.removeChild(rat);
+                rats.splice(rats.indexOf(rat), 1);
+                deadRats.push(rat);
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with the dead rat
+                currentChef = chefs[1];
+
+                // change the chef[1] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            }
+        }
+
+        // if this is chef[1], then we can cook the rat and change the model to chef[0]
+        else if (currentChef === chefs[1]) {
+            // check if the chef is close to the stove 1 and if the stove is free
+            const nearStove1 = checkIfNearStove1();
+            if (nearStove1 && isStoveFree[0]) {
+                // set the stove to be occupied
+                isStoveFree[0] = false;
+                
+                // start the timer for the stove
+                timers[0] = 0;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with no rat
+                currentChef = chefs[0];
+
+                // change the chef[1] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            }
+
+            // check if the chef is close to the stove 2
+            const nearStove2 = checkIfNearStove2();
+            if (nearStove2 && isStoveFree[1]) {
+                // set the stove to be occupied
+                isStoveFree[1] = false;
+
+                // start the timer for the stove
+                timers[1] = 0;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with no rat
+                currentChef = chefs[0];
+
+                // change the chef[1] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            }
+
+            // check if the chef is close to the blender
+            const nearBlender = checkIfNearBlender();
+            if (nearBlender && isBlenderFree[0]) {
+                // set the blender
+                isBlenderFree[0] = false;
+
+                // start the timer for the stove
+                timers[2] = 0;
+
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with no rat
+                currentChef = chefs[0];
+
+                // change the chef[1] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            }
+        }
+
+        // if this is chef[2] or chef[3], we have to deliver the food to the window
+        else if (currentChef === chefs[2] || currentChef === chefs[3]) {
+            // check if the chef is close to the window
+            const nearWindow = checkIfNearWindow();
+
+            // check if close to the 
+            if (nearWindow) {
+                // hide the current chef below the floor
+                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the chef model to the one with no rat
+                currentChef = chefs[0];
+
+                // change the chef[0] model to the position of the current chef
+                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            }
+
         }
 
     } else {
@@ -266,7 +477,7 @@ function checkIfNearRat() {
     if (rats.length === 0) {
         return null;
     }
-    const chefAABB = physics.getTransformedAABB(chef);
+    const chefAABB = physics.getTransformedAABB(currentChef);
     for (const rat of rats) {
         const ratAABB = physics.getTransformedAABB(rat);
         if (physics.aabbIntersection(chefAABB, ratAABB)) {
@@ -274,6 +485,51 @@ function checkIfNearRat() {
         }
     }
     return null;
+}
+
+function checkIfNearStove1() {
+    const chefAABB = physics.getTransformedAABB(currentChef);
+    const stoveAABB = physics.getTransformedAABB(stove1);
+    if (physics.aabbIntersection(chefAABB, stoveAABB)) {
+        return true;
+    }
+    return false;
+}
+
+function checkIfNearStove2() {
+    const chefAABB = physics.getTransformedAABB(currentChef);
+    const stoveAABB = physics.getTransformedAABB(stove2);
+    if (physics.aabbIntersection(chefAABB, stoveAABB)) {
+        return true;
+    }
+    return false;
+}
+
+function checkIfNearBlender() {
+    const chefAABB = physics.getTransformedAABB(currentChef);
+    const blenderAABB = physics.getTransformedAABB(blender);
+    if (physics.aabbIntersection(chefAABB, blenderAABB)) {
+        return true;
+    }
+    return false;
+}
+
+function checkIfNearWindow() {
+    const chefAABB = physics.getTransformedAABB(currentChef);
+    const windowAABB = physics.getTransformedAABB(window);
+    if (physics.aabbIntersection(chefAABB, windowAABB)) {
+        return true;
+    }
+    return false;
+}
+
+function checkIfNearTrash() {
+    const chefAABB = physics.getTransformedAABB(currentChef);
+    const trashAABB = physics.getTransformedAABB(trash);
+    if (physics.aabbIntersection(chefAABB, trashAABB)) {
+        return true;
+    }
+    return false;
 }
 
 // function for spawning a new rat
@@ -302,6 +558,25 @@ function spawnRat() {
     rats.push(respawnRat);
 }
 
+// function for updating the utensil timers
+function updateUtensils(time, dt) {
+    // check if stove 1 is occupied
+    if (!isStoveFree[0]) {
+        // update the timer
+        timers[0] += dt;
+    }
+
+    if (!isStoveFree[1]) {
+        // update the timer
+        timers[1] += dt;
+    }
+
+    if (!isBlenderFree[0]) {
+        // update the timer
+        timers[2] += dt;
+    }
+}
+
 function update(time, dt) {
     scene.traverse(node => {
         for (const component of node.components) {
@@ -310,7 +585,7 @@ function update(time, dt) {
     });
     
     // updating chef's position
-    chef.components.forEach(component => {
+    currentChef.components.forEach(component => {
         component.endPosition = [...chefPosition];
         component.update?.(time, dt);
     });
@@ -325,6 +600,9 @@ function update(time, dt) {
     if (deadRats.length > 2) {
         spawnRat();
     }
+
+    // updating the timer for the stove
+    updateUtensils(time, dt);
 }
 
 function render() {
