@@ -3,7 +3,6 @@ import { UpdateSystem } from './common/engine/systems/UpdateSystem.js';
 
 import { GLTFLoader } from './common/engine/loaders/GLTFLoader.js';
 
-import { OrbitController } from './common/engine/controllers/OrbitController.js';
 import { RotateAnimator } from './common/engine/animators/RotateAnimator.js';
 import { LinearAnimator } from './common/engine/animators/LinearAnimator.js';
 
@@ -21,6 +20,9 @@ import {
     calculateAxisAlignedBoundingBox,
     mergeAxisAlignedBoundingBoxes,
 } from './common/engine/core/MeshUtils.js';
+import { Chefs } from './Chefs.js';
+import { Order } from './Order.js';
+import { GameStats } from './GameStats.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
@@ -68,61 +70,16 @@ window.isStatic = true;
 const trash = gltfLoader.loadNode("Trash");
 trash.isStatic = true;
 
+// scene
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
+
+// creating the chefs
+const chefClass = new Chefs();
+chefClass.createChefs(gltfLoader, scene);
 
 // camera
 const camera = scene.find(node => node.getComponentOfType(Camera));
 camera.isDynamic = true;
-camera.aabb = {
-    min: [-1, -1, -1],
-    max: [1, 1, 1],
-}
-
-// chefs
-const chefs = [];
-
-// Add the initial chef
-const chef = gltfLoader.loadNode("Chef");
-scene.addChild(chef);
-chefs.push(chef);
-let chefPosition = [0, 0, 0];
-chef.isDynamic = true;
-chef.aabb = {
-    min: [-1, -1, -1],
-    max: [1, 1, 1],
-};
-chef.addComponent(new LinearAnimator(chef, {
-    startPosition: [0, 0, 0],
-    endPosition: [...chefPosition],
-    duration: 0,
-    loop: false,
-}));
-const chefSpeed = 0.5
-
-// adding a variable for the current chef
-let currentChef = chef;
-
-// Add the other chefs
-for (let i = 1; i < 4; i++) {
-    let newChef = gltfLoader.loadNode("Chef.00" + i);
-    chefs.push(newChef);
-
-    // Set initial positions for other chefs
-    const newPosition = [0, -5, 0];
-    
-    newChef.isDynamic = true;
-    newChef.aabb = {
-        min: [-1, -1, -1],
-        max: [1, 1, 1],
-    };
-
-    newChef.addComponent(new LinearAnimator(newChef, {
-        startPosition: [0, -5, 0],
-        endPosition: [...newPosition],
-        duration: 0,
-        loop: false,
-    }));
-}
 
 // array that stores the rats
 const rats = [];
@@ -221,6 +178,59 @@ function updateRats(time, dt) {
     }
 }
 
+const stoveRat1Position = [-6.470684051513672, 1.4324699640274048, -0.6407017707824707];
+const stoveRat2Position = [-6.470684051513672, 1.4324740171432495, 1.3184300661087036];
+
+// hide the rats from the pan at the beginning
+const cookingRat1 = gltfLoader.loadNode("Rat_cooking.00");
+cookingRat1.isStatic = true;
+cookingRat1.addComponent(new LinearAnimator(cookingRat1, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+const cookingRat2 = gltfLoader.loadNode("Rat_cooking.01");
+cookingRat2.isStatic = true;
+cookingRat2.addComponent(new LinearAnimator(cookingRat2, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+const cookedRat1 = gltfLoader.loadNode("Rat_cooked.00");
+cookedRat1.isStatic = true;
+cookedRat1.addComponent(new LinearAnimator(cookedRat1, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+const cookedRat2 = gltfLoader.loadNode("Rat_cooked.01");
+cookedRat2.isStatic = true;
+cookedRat2.addComponent(new LinearAnimator(cookedRat2, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+const burnedRat1 = gltfLoader.loadNode("Rat_burned.00");
+burnedRat1.isStatic = true;
+burnedRat1.addComponent(new LinearAnimator(burnedRat1, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+const burnedRat2 = gltfLoader.loadNode("Rat_burned.01");
+burnedRat2.isStatic = true;
+burnedRat2.addComponent(new LinearAnimator(burnedRat2, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+
 // light
 const light = new Node();
 light.addComponent(new Transform({
@@ -257,21 +267,21 @@ function handleKeyDown(event) {
 
         // check if the chef is near the trash
         const nearTrash = checkIfNearTrash();
-        if (nearTrash && (currentChef === chefs[1] || currentChef === chefs[2] || currentChef === chefs[3])) {
+        if (nearTrash && (chefClass.currentChef === chefClass.chefs[1] || chefClass.currentChef === chefClass.chefs[2] || chefClass.currentChef === chefClass.chefs[3] || chefClass.currentChef === chefClass.chefs[4])) {
             // hide the current chef below the floor
-            currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-            currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+            chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
             // change the chef model to the one with no rat
-            currentChef = chefs[0];
+            chefClass.currentChef = chefClass.chefs[0];
 
             // change the chef[1] model to the position of the current chef
-            currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+            chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             return;
         }
 
         // checking if this is chef[0], then we can kill a rat
-        if (currentChef === chefs[0]) {
+        if (chefClass.currentChef === chefClass.chefs[0]) {
 
             // if we are near the stove 1, we retrieve the rat from the stove
             const nearStove1 = checkIfNearStove1();
@@ -280,15 +290,34 @@ function handleKeyDown(event) {
                 isStoveFree[0] = true;
 
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
-                // change the chef model to the one with the rat steak
-                currentChef = chefs[3];
+                // we change the chef model to the one with the cooked rat steak or burned rat steak
+                if (timers[0] >= 20) {
+                    // hide the burned rat from the pan
+                    burnedRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    burnedRat1.getComponentOfType(LinearAnimator).updateNode(0);
 
-                // change the chefs[3] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
-                return;
+                    // change the chef model to the one with the burned rat steak
+                    chefClass.currentChef = chefClass.chefs[4];
+
+                    // change the chefs[3] model to the position of the current chef
+                    chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                    return;
+
+                } else {
+                    // hide the cooked rat from the pan
+                    cookedRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    cookedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+                    // change the chef model to the one with the rat steak
+                    chefClass.currentChef = chefClass.chefs[3];
+
+                    // change the chefs[3] model to the position of the current chef
+                    chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                    return;
+                }
             }
 
             // if we are near the stove 2, we retrieve the rat from the stove
@@ -298,15 +327,34 @@ function handleKeyDown(event) {
                 isStoveFree[1] = true;
 
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
-                // change the chef model to the one with the rat steak
-                currentChef = chefs[3];
+                // we change the chef model to the one with the cooked rat steak or burned rat steak
+                if (timers[1] >= 20) {
+                    // hide the burned rat from the pan
+                    burnedRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    burnedRat2.getComponentOfType(LinearAnimator).updateNode(0);
 
-                // change the chef[2] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
-                return;
+                    // change the chef model to the one with the burned rat steak
+                    chefClass.currentChef = chefClass.chefs[4];
+
+                    // change the chefs[3] model to the position of the current chef
+                    chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                    return;
+
+                } else {
+                    // hide the cooked rat from the pan
+                    cookedRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    cookedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+                    // change the chef model to the one with the rat steak
+                    chefClass.currentChef = chefClass.chefs[3];
+
+                    // change the chefs[3] model to the position of the current chef
+                    chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                    return;
+                }
             }
 
             // if we are near the blender, we retrieve the rat from the blender
@@ -316,14 +364,14 @@ function handleKeyDown(event) {
                 isBlenderFree[0] = true;
 
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with the rat wine
-                currentChef = chefs[2];
+                chefClass.currentChef = chefClass.chefs[2];
 
                 // change the chef[2] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
                 return;
             }
 
@@ -336,19 +384,19 @@ function handleKeyDown(event) {
                 deadRats.push(rat);
 
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with the dead rat
-                currentChef = chefs[1];
+                chefClass.currentChef = chefClass.chefs[1];
 
                 // change the chef[1] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             }
         }
 
         // if this is chef[1], then we can cook the rat and change the model to chef[0]
-        else if (currentChef === chefs[1]) {
+        else if (chefClass.currentChef === chefClass.chefs[1]) {
             // check if the chef is close to the stove 1 and if the stove is free
             const nearStove1 = checkIfNearStove1();
             if (nearStove1 && isStoveFree[0]) {
@@ -358,15 +406,19 @@ function handleKeyDown(event) {
                 // start the timer for the stove
                 timers[0] = 0;
 
+                // put the rat on the stove
+                cookingRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
+                cookingRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with no rat
-                currentChef = chefs[0];
+                chefClass.currentChef = chefClass.chefs[0];
 
                 // change the chef[1] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             }
 
             // check if the chef is close to the stove 2
@@ -378,15 +430,19 @@ function handleKeyDown(event) {
                 // start the timer for the stove
                 timers[1] = 0;
 
+                // put the rat on the stove
+                cookingRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
+                cookingRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with no rat
-                currentChef = chefs[0];
+                chefClass.currentChef = chefClass.chefs[0];
 
                 // change the chef[1] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             }
 
             // check if the chef is close to the blender
@@ -399,56 +455,114 @@ function handleKeyDown(event) {
                 timers[2] = 0;
 
                 // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+                chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with no rat
-                currentChef = chefs[0];
+                chefClass.currentChef = chefClass.chefs[0];
 
                 // change the chef[1] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             }
         }
 
         // if this is chef[2] or chef[3], we have to deliver the food to the window
-        else if (currentChef === chefs[2] || currentChef === chefs[3]) {
+        else if (chefClass.currentChef === chefClass.chefs[2] || chefClass.currentChef === chefClass.chefs[3]) {
             // check if the chef is close to the window
             const nearWindow = checkIfNearWindow();
 
             // check if close to the 
             if (nearWindow) {
-                // hide the current chef below the floor
-                currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
-                currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
-                // change the chef model to the one with no rat
-                currentChef = chefs[0];
+                // if the chef is [2] with the wine, we find the first order that has wine and subtract one wine from order.orderItems[0]
+                if (chefClass.currentChef === chefClass.chefs[2]) {
+                    for (let i = 0; i < orders.length; i++) {
+                        if (orders[i].orderItems[0] > 0) {
+                            orders[i].orderItems[0]--;
 
-                // change the chef[0] model to the position of the current chef
-                currentChef.getComponentOfType(Transform).translation = [...chefPosition];
+                            // hide the current chef below the floor
+                            chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                            chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                            // change the chef model to the one with no rat
+                            chefClass.currentChef = chefClass.chefs[0];
+
+                            // change the chef[0] model to the position of the current chef
+                            chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                            break;
+                        }
+                    }
+                } else {
+                    // this is the chef[3] with the steak, we find the first order that has steak and subtract one steak from order.orderItems[1]
+                    for (let i = 0; i < orders.length; i++) {
+                        if (orders[i].orderItems[1] > 0) {
+                            orders[i].orderItems[1]--;
+
+                            // hide the current chef below the floor
+                            chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                            chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                            // change the chef model to the one with no rat
+                            chefClass.currentChef = chefClass.chefs[0];
+
+                            // change the chef[0] model to the position of the current chef
+                            chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
+                            break;
+                        }
+                    }
+                }
+
+                // check if the order is completed
+                for (let i = 0; i < orders.length; i++) {
+                    if (orders[i].orderItems[0] === 0 && orders[i].orderItems[1] === 0) {
+                        // add the order to the completed orders
+                        game.addOrderCompleted();
+                        
+                        let items;
+                        // check the order type and add the money earned
+                        if (orders[i].orderType === 0) {
+                            items = [1, 0];
+                        } else if (orders[i].orderType === 1) {
+                            items = [0, 1];
+                        } else if (orders[i].orderType === 2) {
+                            items = [1, 1];
+                        } else {
+                            items = [2, 2];
+                        }
+
+                        // add the money earned
+                        const price = items[0] * 5 + items[1] * 10;
+                        const profit = (0.5 + orders[i].timer / 30) * price;
+                        game.addMoneyEarned(Math.floor(profit));
+
+                        // remove the order from the orders array
+                        orders.splice(i, 1);
+                        break;
+                    }
+                }
             }
 
         }
 
     } else {
-        let newChefPosition = [...chefPosition];
+        let newChefPosition = [...chefClass.chefPosition];
         // updating chef's position
         switch (event.key) {
             case 'w':
             case 'W':
-                newChefPosition[2] -= chefSpeed;
+                newChefPosition[2] -= chefClass.chefSpeed;
                 break;
             case 'a':
             case 'A':
-                newChefPosition[0] -= chefSpeed;
+                newChefPosition[0] -= chefClass.chefSpeed;
                 break;
             case 's':
             case 'S':
-                newChefPosition[2] += chefSpeed;
+                newChefPosition[2] += chefClass.chefSpeed;
                 break;
             case 'd':
             case 'D':
-                newChefPosition[0] += chefSpeed;
+                newChefPosition[0] += chefClass.chefSpeed;
                 break;
         }
     
@@ -466,7 +580,7 @@ function handleKeyDown(event) {
         if (validPosition) {
             // checking if chef's position is out of bounds (bottom, where there is no wall)
             if (newChefPosition[2] < 6) {
-                chefPosition = newChefPosition;
+                chefClass.chefPosition = newChefPosition;
             }
         }
     }
@@ -477,7 +591,7 @@ function checkIfNearRat() {
     if (rats.length === 0) {
         return null;
     }
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     for (const rat of rats) {
         const ratAABB = physics.getTransformedAABB(rat);
         if (physics.aabbIntersection(chefAABB, ratAABB)) {
@@ -488,7 +602,7 @@ function checkIfNearRat() {
 }
 
 function checkIfNearStove1() {
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const stoveAABB = physics.getTransformedAABB(stove1);
     if (physics.aabbIntersection(chefAABB, stoveAABB)) {
         return true;
@@ -497,7 +611,7 @@ function checkIfNearStove1() {
 }
 
 function checkIfNearStove2() {
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const stoveAABB = physics.getTransformedAABB(stove2);
     if (physics.aabbIntersection(chefAABB, stoveAABB)) {
         return true;
@@ -506,7 +620,7 @@ function checkIfNearStove2() {
 }
 
 function checkIfNearBlender() {
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const blenderAABB = physics.getTransformedAABB(blender);
     if (physics.aabbIntersection(chefAABB, blenderAABB)) {
         return true;
@@ -515,7 +629,7 @@ function checkIfNearBlender() {
 }
 
 function checkIfNearWindow() {
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const windowAABB = physics.getTransformedAABB(window);
     if (physics.aabbIntersection(chefAABB, windowAABB)) {
         return true;
@@ -524,7 +638,7 @@ function checkIfNearWindow() {
 }
 
 function checkIfNearTrash() {
-    const chefAABB = physics.getTransformedAABB(currentChef);
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const trashAABB = physics.getTransformedAABB(trash);
     if (physics.aabbIntersection(chefAABB, trashAABB)) {
         return true;
@@ -564,11 +678,55 @@ function updateUtensils(time, dt) {
     if (!isStoveFree[0]) {
         // update the timer
         timers[0] += dt;
+
+        // if 5 seconds have passed, change to cooked rat
+        if (timers[0] >= 5 && cookingRat1.getComponentOfType(LinearAnimator).endPosition[1] != -5) {
+            // hide the rat from the pan
+            cookingRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            cookingRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // show the cooked rat
+            cookedRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
+            cookedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+        }
+
+        // if 20 seconds have passed, change to burned rat
+        if (timers[0] >= 20 && burnedRat1.getComponentOfType(LinearAnimator).endPosition[1] != stoveRat1Position[1]) {
+            // hide the rat from the pan
+            cookedRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            cookedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // show the burned rat
+            burnedRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
+            burnedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+        }
     }
 
     if (!isStoveFree[1]) {
         // update the timer
         timers[1] += dt;
+
+        // if 5 seconds have passed, change to cooked rat
+        if (timers[1] >= 5 && cookingRat2.getComponentOfType(LinearAnimator).endPosition[1] != -5) {
+            // hide the rat from the pan
+            cookingRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            cookingRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // show the cooked rat
+            cookedRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
+            cookedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+        }
+
+        // if 20 seconds have passed, change to burned rat
+        if (timers[1] >= 20 && burnedRat2.getComponentOfType(LinearAnimator).endPosition[1] != stoveRat2Position[1]) {
+            // hide the rat from the pan
+            cookedRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            cookedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // show the burned rat
+            burnedRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
+            burnedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+        }
     }
 
     if (!isBlenderFree[0]) {
@@ -576,6 +734,25 @@ function updateUtensils(time, dt) {
         timers[2] += dt;
     }
 }
+
+// add queue for orders
+const orders = [];
+let orderRespawnTimer = 20;
+let currentOrderTimer = 20;
+
+// make GameStats class
+const game = new GameStats();
+
+// the game lasts 3 minutes
+// 1st minute: order every 20 seconds
+// 2nd minute: order every 10 seconds
+// 3rd minute: order every 5 seconds
+// max order size is 5
+// an order needs 30 seconds to be completed, no matter the time
+
+// create the first order
+const firstOrder = new Order();
+orders.push(firstOrder);
 
 function update(time, dt) {
     scene.traverse(node => {
@@ -585,8 +762,8 @@ function update(time, dt) {
     });
     
     // updating chef's position
-    currentChef.components.forEach(component => {
-        component.endPosition = [...chefPosition];
+    chefClass.currentChef.components.forEach(component => {
+        component.endPosition = [...chefClass.chefPosition];
         component.update?.(time, dt);
     });
 
@@ -603,6 +780,47 @@ function update(time, dt) {
 
     // updating the timer for the stove
     updateUtensils(time, dt);
+
+    // if 20 seconds have passed, spawn a new order
+    orderRespawnTimer -= dt;
+    if (orderRespawnTimer <= 0) {
+        orderRespawnTimer = currentOrderTimer;
+
+        // generate a new order
+        const newOrder = new Order();
+
+        // add the order to the orders array, if array is not full (max 5 orders)
+        if (orders.length < 5) {
+            orders.push(newOrder);
+        }
+    }
+
+    // if 2nd minute has passed, change the order respawn timer to 5 seconds
+    if (time >= 120) {
+        orderRespawnTimer = 5;
+    }
+    // if 1st minute has passed, change the order timer to 10 seconds
+    else if (time >= 60) {
+        currentOrderTimer = 10;
+    }
+
+    // update the orders' timers
+    orders.forEach(order => {
+        order.timer -= dt;
+    });
+
+    // if 30 seconds have passed, remove the order from the orders array
+    orders.forEach(order => {
+        if (order.timer <= 0) {
+            orders.splice(orders.indexOf(order), 1);
+
+            // add the order to the failed orders
+            game.addOrderFailed();
+        }
+    });
+
+    // 
+
 }
 
 function render() {
