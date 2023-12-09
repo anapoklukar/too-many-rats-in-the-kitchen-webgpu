@@ -541,8 +541,12 @@ function handleKeyDown(event) {
 
         // if this is chef[1], then we can cook the rat and change the model to chef[0]
         else if (chefClass.currentChef === chefClass.chefs[1]) {
+
             // check if the chef is close to the stove 1 and if the stove is free
             const nearStove1 = checkIfNearStove1();
+            // check if the chef is close to the stove 2
+            const nearStove2 = checkIfNearStove2();
+            
             if (nearStove1 && isStoveFree[0]) {
                 // set the stove to be occupied
                 isStoveFree[0] = false;
@@ -567,10 +571,7 @@ function handleKeyDown(event) {
                 // change the chef[1] model to the position of the current chef
                 chefClass.currentChef.getComponentOfType(Transform).translation = [...chefClass.chefPosition];
             }
-
-            // check if the chef is close to the stove 2
-            const nearStove2 = checkIfNearStove2();
-            if (nearStove2 && isStoveFree[1]) {
+            else if (nearStove2 && isStoveFree[1]) {
                 // set the stove to be occupied
                 isStoveFree[1] = false;
 
