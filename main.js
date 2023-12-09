@@ -98,12 +98,30 @@ const stove1 = gltfLoader.loadNode("stove_single");
 stove1.isStatic = true;
 const stove2 = gltfLoader.loadNode("stove_single.001");
 stove2.isStatic = true;
-const blender = gltfLoader.loadNode("Blender");
-blender.isStatic = true;
 const window = gltfLoader.loadNode("wall_orderwindow");
 window.isStatic = true;
 const trash = gltfLoader.loadNode("Trash");
 trash.isStatic = true;
+
+const blenderLocation = [1.849308729171753, 0.9735197424888611, 0.5595384240150452];
+const blender = gltfLoader.loadNode("Blender");
+blender.isStatic = true;
+blender.addComponent(new LinearAnimator(blender, {
+    startPosition: blenderLocation,
+    endPosition: blenderLocation,
+    duration: 0,
+    loop: false,
+
+}));
+// blender full, spawning under the floor
+const blenderFull = gltfLoader.loadNode("Blender.full");
+blenderFull.isStatic = true;
+blenderFull.addComponent(new LinearAnimator(blenderFull, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
 
 // checkmarks and exclamations
 const checkmark1 = gltfLoader.loadNode("Check.00");
@@ -469,7 +487,7 @@ function handleKeyDown(event) {
             }
 
             // if we are near the blender, we retrieve the rat from the blender
-            const nearBlender = checkIfNearBlender();
+            const nearBlender = checkIfNearBlenderFull();
             if (nearBlender && !isBlenderFree[0] && timers[2] >= 5) {
                 // set the blender to be free
                 isBlenderFree[0] = true;
@@ -481,6 +499,14 @@ function handleKeyDown(event) {
                 // hide the checkmark
                 checkmark3.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                 checkmark3.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // change the blenderFull to the blender
+                blenderFull.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                blenderFull.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // bring back blender
+                blender.getComponentOfType(LinearAnimator).endPosition = blenderLocation;
+                blender.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with the rat wine
                 chefClass.currentChef = chefClass.chefs[2];
@@ -758,6 +784,15 @@ function checkIfNearBlender() {
     return false;
 }
 
+function checkIfNearBlenderFull() {
+    const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
+    const blenderFullAABB = physics.getTransformedAABB(blenderFull);
+    if (physics.aabbIntersection(chefAABB, blenderFullAABB)) {
+        return true;
+    }
+    return false;
+}
+
 function checkIfNearWindow() {
     const chefAABB = physics.getTransformedAABB(chefClass.currentChef);
     const windowAABB = physics.getTransformedAABB(window);
@@ -890,6 +925,14 @@ function updateUtensils(time, dt) {
             // put up the checkmark3
             checkmark3.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition3;
             checkmark3.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // hide the empty blender
+            blender.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            blender.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // change the blender model to the one with the rat wine
+            blenderFull.getComponentOfType(LinearAnimator).endPosition = blenderLocation;
+            blenderFull.getComponentOfType(LinearAnimator).updateNode(0);
         }
     }
 }
