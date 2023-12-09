@@ -11,5 +11,72 @@
     <div class="fullscreen">
         <canvas></canvas>
     </div>
+    <div class ="GuestHealth">
+        <div class="health-bar" data-total="1000" data-value="1000">                      
+            <div class="bar" div id="customer1">
+            </div>
+        </div>    
+        <div class="health-bar" data-total="1000" data-value="1000">
+            <div class="bar" div id="customer2">
+            </div>
+        </div>
+        <div class="health-bar" data-total="1000" data-value="1000" >
+            <div class="bar" div id="customer3">
+            </div>
+        </div>
+        <div class="health-bar" data-total="1000" data-value="1000">
+            <div class="bar" div id="customer4">
+            </div>
+        </div>
+        <div class="health-bar" data-total="1000" data-value="1000" >
+            <div class="bar" div id="customer5">
+            </div>
+        </div>
+   </div>
+   <div class ="OrdersUI">
+        <div class = "order1" >            
+        </div>
+        <div class = "order2" >            
+        </div>
+        <div class = "order3" >            
+        </div>
+        <div class = "order4" >            
+        </div>
+        <div class = "order5" >            
+        </div>
+   </div>
+   <div class = HelpUI ></div> 
+
+
+   <button type = "button" class = "settingsbutton" onclick="openSettings()"></button>
+   <button type = "button" class = "settings" id = "settings" onclick="closeSettings()"></button>
+
+   <button type = "button" class = "howtoplay" onclick="HideTutorial()" id ="howtoplay"></button>
+   <button type = "button" class = "startscreen" onclick="StartGame()" id ="startscreen"></button>
+</div>
+
+<script>
+    let settings = document.getElementById("settings");
+    let startscreen = document.getElementById("startscreen");
+    let howtoplay = document.getElementById("howtoplay");
+
+
+    function openSettings(){
+        settings.classList.add("open-settings");
+    }
+
+    function closeSettings(){
+        settings.classList.remove("open-settings");
+    }
+
+    function StartGame(){
+        startscreen.classList.add("hide");
+    }
+
+    function HideTutorial(){
+        howtoplay.classList.add("hide");
+    }
+</script>
+
 </body>
 </html>
