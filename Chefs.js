@@ -36,7 +36,7 @@ export class Chefs {
         chef.addComponent(new LinearAnimator(chef, {
             startPosition: [0, 0, 0],
             endPosition: [...this.chefPosition],
-            duration: 0,
+            duration: 0.01,
             loop: false,
         }));
     
@@ -61,7 +61,7 @@ export class Chefs {
             newChef.addComponent(new LinearAnimator(newChef, {
                 startPosition: [0, -5, 0],
                 endPosition: [0, -5, 0],
-                duration: 0,
+                duration: 0.01,
                 loop: false,
             }));
         }
