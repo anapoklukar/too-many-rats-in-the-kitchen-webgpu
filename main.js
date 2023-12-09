@@ -70,6 +70,62 @@ window.isStatic = true;
 const trash = gltfLoader.loadNode("Trash");
 trash.isStatic = true;
 
+// checkmarks and exclamations
+const checkmark1 = gltfLoader.loadNode("Check.00");
+checkmark1.isStatic = true;
+const checkmark2 = gltfLoader.loadNode("Check.01");
+checkmark2.isStatic = true;
+const checkmark3 = gltfLoader.loadNode("Check.02");
+checkmark3.isStatic = true;
+const exclamation1 = gltfLoader.loadNode("Exclamation00");
+exclamation1.isStatic = true;
+const exclamation2 = gltfLoader.loadNode("exclamation01");
+exclamation2.isStatic = true;
+const exclamation3 = gltfLoader.loadNode("exclamation02");
+exclamation3.isStatic = true;
+
+const orderStatusPosition1 = [-6.882245063781738, 2.673933506011963, -0.6062103509902954];
+const orderStatusPosition2 = [-6.882245063781738, 2.673933506011963, 1.3410507440567017];
+const orderStatusPosition3 = [1.4560308456420898, 3.017540216445923, 0.6160213351249695];
+
+// addding the linear animators
+checkmark1.addComponent(new LinearAnimator(checkmark1, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+checkmark2.addComponent(new LinearAnimator(checkmark2, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+checkmark3.addComponent(new LinearAnimator(checkmark3, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+exclamation1.addComponent(new LinearAnimator(exclamation1, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+exclamation2.addComponent(new LinearAnimator(exclamation2, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+exclamation3.addComponent(new LinearAnimator(exclamation3, {
+    startPosition: [0, -5, 0],
+    endPosition: [0, -5, 0],
+    duration: 0,
+    loop: false,
+}));
+
 // scene
 const scene = gltfLoader.loadScene(gltfLoader.defaultScene);
 
@@ -299,6 +355,10 @@ function handleKeyDown(event) {
                     burnedRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                     burnedRat1.getComponentOfType(LinearAnimator).updateNode(0);
 
+                    // hide the exclamation
+                    exclamation1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    exclamation1.getComponentOfType(LinearAnimator).updateNode(0);
+
                     // change the chef model to the one with the burned rat steak
                     chefClass.currentChef = chefClass.chefs[4];
 
@@ -310,6 +370,10 @@ function handleKeyDown(event) {
                     // hide the cooked rat from the pan
                     cookedRat1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                     cookedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+                    // hide the checkmark
+                    checkmark1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    checkmark1.getComponentOfType(LinearAnimator).updateNode(0);
 
                     // change the chef model to the one with the rat steak
                     chefClass.currentChef = chefClass.chefs[3];
@@ -336,6 +400,10 @@ function handleKeyDown(event) {
                     burnedRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                     burnedRat2.getComponentOfType(LinearAnimator).updateNode(0);
 
+                    // hide the exclamation
+                    exclamation2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    exclamation2.getComponentOfType(LinearAnimator).updateNode(0);
+
                     // change the chef model to the one with the burned rat steak
                     chefClass.currentChef = chefClass.chefs[4];
 
@@ -347,6 +415,10 @@ function handleKeyDown(event) {
                     // hide the cooked rat from the pan
                     cookedRat2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                     cookedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+                    // hide the checkmark
+                    checkmark2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                    checkmark2.getComponentOfType(LinearAnimator).updateNode(0);
 
                     // change the chef model to the one with the rat steak
                     chefClass.currentChef = chefClass.chefs[3];
@@ -366,6 +438,10 @@ function handleKeyDown(event) {
                 // hide the current chef below the floor
                 chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                 chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
+
+                // hide the checkmark
+                checkmark3.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+                checkmark3.getComponentOfType(LinearAnimator).updateNode(0);
 
                 // change the chef model to the one with the rat wine
                 chefClass.currentChef = chefClass.chefs[2];
@@ -688,6 +764,10 @@ function updateUtensils(time, dt) {
             // show the cooked rat
             cookedRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
             cookedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // put up the checkmark1
+            checkmark1.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition1;
+            checkmark1.getComponentOfType(LinearAnimator).updateNode(0);
         }
 
         // if 20 seconds have passed, change to burned rat
@@ -699,6 +779,12 @@ function updateUtensils(time, dt) {
             // show the burned rat
             burnedRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
             burnedRat1.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // put down the checkmark1
+            checkmark1.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+
+            // put up the exclamation1
+            exclamation1.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition1;
         }
     }
 
@@ -715,6 +801,10 @@ function updateUtensils(time, dt) {
             // show the cooked rat
             cookedRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
             cookedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // put up the checkmark2
+            checkmark2.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition2;
+            checkmark2.getComponentOfType(LinearAnimator).updateNode(0);
         }
 
         // if 20 seconds have passed, change to burned rat
@@ -726,12 +816,27 @@ function updateUtensils(time, dt) {
             // show the burned rat
             burnedRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
             burnedRat2.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // put down the checkmark2
+            checkmark2.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
+            checkmark2.getComponentOfType(LinearAnimator).updateNode(0);
+
+            // put up the exclamation2
+            exclamation2.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition2;
+            exclamation2.getComponentOfType(LinearAnimator).updateNode(0);
         }
     }
 
     if (!isBlenderFree[0]) {
         // update the timer
         timers[2] += dt;
+
+        // if 5 seconds have passed, put up the checkmark
+        if (timers[2] >= 5 && checkmark3.getComponentOfType(LinearAnimator).endPosition[1] != orderStatusPosition3[1]) {
+            // put up the checkmark3
+            checkmark3.getComponentOfType(LinearAnimator).endPosition = orderStatusPosition3;
+            checkmark3.getComponentOfType(LinearAnimator).updateNode(0);
+        }
     }
 }
 
@@ -818,8 +923,6 @@ function update(time, dt) {
             game.addOrderFailed();
         }
     });
-
-    // 
 
 }
 
