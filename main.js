@@ -31,6 +31,41 @@ await renderer.initialize();
 const gltfLoader = new GLTFLoader();
 await gltfLoader.load('common/models/kitchen.gltf');
 
+let volume = 0.5;
+// music
+const audio = new Audio("common/sounds/Restaurant.mp3");
+audio.loop = true;
+audio.volume = volume;
+audio.play();
+
+// money sound
+const moneySound = new Audio("common/sounds/money.mp3");
+moneySound.volume = 0.2;
+
+// trash sound
+const trashSound = new Audio("common/sounds/trash.mp3");
+trashSound.volume = 0.2;
+
+// new customer/order sound
+const newCustomerSound = new Audio("common/sounds/newCustomer.mp3");
+newCustomerSound.volume = 0.2;
+
+// click sound
+const clickSound = new Audio("common/sounds/click.wav");
+clickSound.volume = 0.2;
+
+// kill rat sound
+const killRatSound = new Audio("common/sounds/rat.mp3");
+killRatSound.volume = 0.2;
+
+// frying pan sound
+const fryingPanSound = new Audio("common/sounds/fryingPan.mp3");
+fryingPanSound.volume = 0.2;
+
+// blender sound
+const blenderSound = new Audio("common/sounds/blender.mp3");
+blenderSound.volume = 0.2;
+
 // making the kitchen static
 gltfLoader.loadNode("wall").isStatic = true;
 gltfLoader.loadNode("wall.001").isStatic = true;
@@ -325,6 +360,10 @@ function handleKeyDown(event) {
         const nearTrash = checkIfNearTrash();
         if (nearTrash && (chefClass.currentChef === chefClass.chefs[1] || chefClass.currentChef === chefClass.chefs[2] || chefClass.currentChef === chefClass.chefs[3] || chefClass.currentChef === chefClass.chefs[4])) {
             // hide the current chef below the floor
+
+            // play the trash sound
+            trashSound.play();
+
             chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
             chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
 
@@ -336,7 +375,7 @@ function handleKeyDown(event) {
             return;
         }
 
-        // checking if this is chef[0], then we can kill a rat
+        // checking if this is chef[0]
         if (chefClass.currentChef === chefClass.chefs[0]) {
 
             // if we are near the stove 1, we retrieve the rat from the stove
@@ -454,6 +493,9 @@ function handleKeyDown(event) {
             // check if the chef is near a rat
             const rat = checkIfNearRat();
             if (rat != null) {
+                // play the kill rat sound
+                killRatSound.play();
+
                 // remove the rat from the scene and from the rats array
                 scene.removeChild(rat);
                 rats.splice(rats.indexOf(rat), 1);
@@ -486,6 +528,9 @@ function handleKeyDown(event) {
                 cookingRat1.getComponentOfType(LinearAnimator).endPosition = stoveRat1Position;
                 cookingRat1.getComponentOfType(LinearAnimator).updateNode(0);
 
+                // play the frying pan sound
+                fryingPanSound.play();
+
                 // hide the current chef below the floor
                 chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                 chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
@@ -510,6 +555,9 @@ function handleKeyDown(event) {
                 cookingRat2.getComponentOfType(LinearAnimator).endPosition = stoveRat2Position;
                 cookingRat2.getComponentOfType(LinearAnimator).updateNode(0);
 
+                // play the frying pan sound
+                fryingPanSound.play();
+
                 // hide the current chef below the floor
                 chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
                 chefClass.currentChef.getComponentOfType(LinearAnimator).updateNode(0);
@@ -529,6 +577,9 @@ function handleKeyDown(event) {
 
                 // start the timer for the stove
                 timers[2] = 0;
+
+                // play the blender sound
+                blenderSound.play();
 
                 // hide the current chef below the floor
                 chefClass.currentChef.getComponentOfType(LinearAnimator).endPosition = [0, -5, 0];
@@ -608,8 +659,11 @@ function handleKeyDown(event) {
 
                         // add the money earned
                         const price = items[0] * 5 + items[1] * 10;
-                        const profit = (0.5 + orders[i].timer / 30) * price;
+                        const profit = (0.5 + orders[i].timer / 40) * price;
                         game.addMoneyEarned(Math.floor(profit));
+
+                        // play the money sound
+                        moneySound.play();
 
                         // remove the order from the orders array
                         orders.splice(i, 1);
@@ -859,6 +913,9 @@ const game = new GameStats();
 const firstOrder = new Order();
 orders.push(firstOrder);
 
+// play the new order sound
+newCustomerSound.play();
+
 function update(time, dt) {
     scene.traverse(node => {
         for (const component of node.components) {
@@ -897,6 +954,9 @@ function update(time, dt) {
         // add the order to the orders array, if array is not full (max 5 orders)
         if (orders.length < 5) {
             orders.push(newOrder);
+
+            // play the new order sound
+            newCustomerSound.play();
         }
     }
 
@@ -914,7 +974,7 @@ function update(time, dt) {
         order.timer -= dt;
     });
 
-    // if 30 seconds have passed, remove the order from the orders array
+    // if 40 seconds have passed, remove the order from the orders array
     orders.forEach(order => {
         if (order.timer <= 0) {
             orders.splice(orders.indexOf(order), 1);

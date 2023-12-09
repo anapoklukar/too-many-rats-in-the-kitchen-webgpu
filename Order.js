@@ -9,7 +9,7 @@ export class Order {
 
         // order items has [0] how many wines, [1] how many steaks
         orderItems = [0, 0],
-        timer = 30,
+        timer = 40,
 
     } = {}) {
         this.generateRandomOrder();
