@@ -97,11 +97,9 @@ body, html {
 
 .bar {    
     background: rgb(230, 81, 94);
-    width: 100%;
+    width: 200px;
     height: 10px;
-    position: relative;
-    
-    transition: width .5s linear;
+    position: relative;    
 }
 
 

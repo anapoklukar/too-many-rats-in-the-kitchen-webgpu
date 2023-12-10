@@ -35,13 +35,6 @@ await gltfLoader.load('common/models/kitchen.gltf');
 let timerUI = document.getElementById("game-timer");
 let scoreUI = document.getElementById("score");
 
-//number of orders
-let order1numbersUI = document.getElementById("Order1-numbers");
-let order2numbersUI = document.getElementById("Order2-numbers");
-let order3numbersUI = document.getElementById("Order3-numbers");
-let order4numbersUI = document.getElementById("Order4-numbers");
-let order5numbersUI = document.getElementById("Order5-numbers");
-
 //customer health bar
 let Customer1UI = document.getElementById("Customer1");
 let Customer2UI = document.getElementById("Customer2");
@@ -1006,10 +999,34 @@ orders.push(firstOrder);
 // play the new order sound
 newCustomerSound.play();
 
+function updateUI(time, dt){
+
+    //update health
+   for(let i = 0; i < orders.length; i++){
+        const element = document.getElementById(`customer${i + 1}`);
+        element.style.width = (orders[i].timer/40)*200 +"px";
+    }
+    for(let i = orders.length; i < 5; i++){
+        const element = document.getElementById(`customer${i + 1}`);
+        element.style.width = "0px";
+    }
+    //update numbers
+    for(let i = 0; i < orders.length; i++){
+        const element = document.getElementById(`Order${i + 1}-numbers`);
+        element.innerHTML = orders[i].orderItems[0] + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp" + orders[i].orderItems[1];
+    }
+    for(let i = orders.length; i < 5; i++){
+        const element = document.getElementById(`Order${i + 1}-numbers`);
+        element.innerHTML = "";
+    }
+}
+
 function update(time, dt) {
 
     timerUI.innerHTML = Math.round(180 - time); 
     scoreUI.innerHTML = game.moneyEarned;
+
+    updateUI(time,dt);
 
     scene.traverse(node => {
         for (const component of node.components) {
