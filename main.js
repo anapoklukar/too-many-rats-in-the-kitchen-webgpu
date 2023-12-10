@@ -336,12 +336,30 @@ burnedRat2.addComponent(new LinearAnimator(burnedRat2, {
 // light
 const light = new Node();
 light.addComponent(new Transform({
-    translation: [3, 5, 5],
+    translation: [3, 5, 7],
 }));
 light.addComponent(new Light({
     ambient: 0.3,
 }));
 scene.addChild(light);
+
+const light2 = new Node();
+light2.addComponent(new Transform({
+    translation: [-3, 5, 7],
+}));
+light2.addComponent(new Light({
+    ambient: 0.3,
+}));
+scene.addChild(light2);
+
+const light3 = new Node();
+light3.addComponent(new Transform({
+    translation: [0, 5, -7],
+}));
+light3.addComponent(new Light({
+    ambient: 0.3,
+}));
+scene.addChild(light3);
 
 // adding physics
 const physics = new Physics(scene);
