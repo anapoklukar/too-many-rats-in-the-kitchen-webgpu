@@ -10,7 +10,7 @@
 <body>
     <div class="fullscreen">
         <canvas></canvas>
-    </div>
+    </div>    
     <div class ="GuestHealth">
         <div class="health-bar" data-total="1000" data-value="1000">                      
             <div class="bar" div id="customer1">
@@ -34,16 +34,25 @@
         </div>
    </div>
    <div class ="OrdersUI">
-        <div class = "order1" >            
+        <div class = "order1" id ="order1">            
         </div>
-        <div class = "order2" >            
+        <div class = "order2" id ="order1">            
         </div>
-        <div class = "order3" >            
+        <div class = "order3" id ="order1">            
         </div>
-        <div class = "order4" >            
+        <div class = "order4" id ="order1">            
         </div>
-        <div class = "order5" >            
+        <div class = "order5" id ="order1">            
         </div>
+   </div>
+   <div class = "score" id="score">  
+    <h3 class = "title">PROFIT</h2>
+    <h2 class = "title">0</h2>
+   </div>
+
+   <div class = "timer">
+    <h3> TIME LEFT </h3>
+    <h3 id="game-timer">0</h3>
    </div>
    <div class = HelpUI ></div> 
 
@@ -71,6 +80,12 @@
 
     function StartGame(){
         startscreen.classList.add("hide");
+        let volume = 0.2;
+        // music
+        const audio = new Audio("common/sounds/Restaurant.mp3");
+        audio.loop = true;
+        audio.volume = volume;
+        audio.play();
     }
 
     function HideTutorial(){

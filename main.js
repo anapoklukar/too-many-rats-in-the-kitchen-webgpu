@@ -997,8 +997,7 @@ function update(time, dt) {
 
         // add the order to the orders array, if array is not full (max 5 orders)
         if (orders.length < 5) {
-            orders.push(newOrder);
-
+            orders.push(newOrder);           
             // play the new order sound
             newCustomerSound.play();
         }
@@ -1006,7 +1005,7 @@ function update(time, dt) {
 
     // if 2nd minute has passed, change the order respawn timer to 5 seconds
     if (time >= 120) {
-        orderRespawnTimer = 5;
+        currentOrderTimer = 5;
     }
     // if 1st minute has passed, change the order timer to 10 seconds
     else if (time >= 60) {
@@ -1021,8 +1020,7 @@ function update(time, dt) {
     // if 40 seconds have passed, remove the order from the orders array
     orders.forEach(order => {
         if (order.timer <= 0) {
-            orders.splice(orders.indexOf(order), 1);
-
+            orders.splice(orders.indexOf(order), 1);            
             // add the order to the failed orders
             game.addOrderFailed();
         }
