@@ -1031,14 +1031,13 @@ function update(time, dt) {
     if (initialized === true) {
         timer -= dt;
         timerUI.innerHTML = Math.round(timer);    
-
-        if (timer <= 0) {
-            // end of game
+        
+        // end of game
+        if (timer <= 0) {           
             // stop the game
             initialized = false;
             // popup with the score and the option to restart
-            endScreen(time, dt);
-            // TODO
+            endScreen(time, dt);            
         }
     }
     
