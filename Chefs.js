@@ -1,4 +1,5 @@
 import { LinearAnimator } from './common/engine/animators/LinearAnimator.js';
+import { RotateAnimator } from './common/engine/animators/RotateAnimator.js';
 
 export class Chefs {
     constructor({
@@ -39,6 +40,13 @@ export class Chefs {
             duration: 0.01,
             loop: false,
         }));
+
+        chef.addComponent(new RotateAnimator(chef, {
+            startRotation: [0, 0, 0, 1],
+            endRotation: [0, 0, 0, 1],
+            duration: 0,
+            loop: false,
+        }));
     
         // adding a variable for the current chef
         this.currentChef = chef;
@@ -62,6 +70,13 @@ export class Chefs {
                 startPosition: [0, -5, 0],
                 endPosition: [0, -5, 0],
                 duration: 0.01,
+                loop: false,
+            }));
+
+            newChef.addComponent(new RotateAnimator(newChef, {
+                startRotation: [0, 0, 0, 1],
+                endRotation: [0, 0, 0, 1],
+                duration: 0,
                 loop: false,
             }));
         }

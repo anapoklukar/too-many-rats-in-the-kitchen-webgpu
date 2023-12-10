@@ -31,13 +31,6 @@ await renderer.initialize();
 const gltfLoader = new GLTFLoader();
 await gltfLoader.load('common/models/kitchen.gltf');
 
-let volume = 0.5;
-// music
-const audio = new Audio("common/sounds/Restaurant.mp3");
-audio.loop = true;
-audio.volume = volume;
-audio.play();
-
 // money sound
 const moneySound = new Audio("common/sounds/money.mp3");
 moneySound.volume = 0.2;
@@ -737,6 +730,23 @@ function handleKeyDown(event) {
         if (validPosition) {
             // checking if chef's position is out of bounds (bottom, where there is no wall)
             if (newChefPosition[2] < 6) {
+                // updating the chef's rotation
+                const chefRotateAnimator = chefClass.currentChef.getComponentOfType(RotateAnimator);
+                // old position
+                const oldPosition = chefClass.chefPosition;
+
+                // angle between the chef's current position and the new position
+                const angle = Math.atan2(newChefPosition[0] - oldPosition[0], newChefPosition[2] - oldPosition[2]);
+
+                // set the new rotation
+                chefRotateAnimator.startRotation = [...chefClass.currentChef.getComponentOfType(Transform).rotation];
+                chefRotateAnimator.endRotation = [
+                    0,
+                    Math.sin((angle) / 2),
+                    0,
+                    Math.cos((angle) / 2),
+                ];
+                chefRotateAnimator.updateNode(0);
                 chefClass.chefPosition = newChefPosition;
             }
         }
