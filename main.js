@@ -1017,20 +1017,31 @@ function updateUI(time, dt){
     }
 }
 
+function endScreen(time, dt){
+    const endScreen = document.getElementById("endScreen");
+    const endText1 = document.getElementById("endText1");
+    const endText2 = document.getElementById("endText2");
+    endScreen.classList.add("show");
+    endText1.innerHTML = "<p>Congratulations! </p><p> You've earned " + game.moneyEarned + " $ !</p>";
+    endText2.innerHTML =  "<p>You completed " +  game.ordersCompleted +" orders. </p><p> You failed to complete " + game.ordersFailed + " orders.</p><p>Click to try again</p>";
+}
+
 function update(time, dt) {
 
     if (initialized === true) {
         timer -= dt;
-        timerUI.innerHTML = Math.round(timer);
+        timerUI.innerHTML = Math.round(timer);    
 
         if (timer <= 0) {
             // end of game
             // stop the game
             initialized = false;
             // popup with the score and the option to restart
+            endScreen(time, dt);
             // TODO
         }
     }
+    
 
     scoreUI.innerHTML = game.moneyEarned;
 

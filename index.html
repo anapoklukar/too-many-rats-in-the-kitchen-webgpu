@@ -64,6 +64,11 @@
 
    <button type = "button" class = "settingsbutton" onclick="openSettings()"></button>
    <button type = "button" class = "settings" id = "settings" onclick="closeSettings()"></button>
+   <button type = "button" class = "endScreen" id = "endScreen" onclick="restart()">
+    <h1 id="endText1">
+        <h3 id="endText2"></h3>
+    </h1>
+   </button>
 
    <button type = "button" class = "howtoplay" onclick="HideTutorial()" id ="howtoplay"></button>
    <button type = "button" class = "startscreen" onclick="StartGame()" id ="startscreen"></button>
@@ -74,6 +79,7 @@
     let settings = document.getElementById("settings");
     let startscreen = document.getElementById("startscreen");
     let howtoplay = document.getElementById("howtoplay");
+    let endScreen = document.getElementById("endScreen");
 
 
     function openSettings(){
@@ -99,6 +105,11 @@
     function HideTutorial(){
         howtoplay.classList.add("hide");
     }
+
+    function restart(){
+        location.reload();
+    }
+
 </script>
 
 </body>
