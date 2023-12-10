@@ -31,6 +31,24 @@ await renderer.initialize();
 const gltfLoader = new GLTFLoader();
 await gltfLoader.load('common/models/kitchen.gltf');
 
+//UI controls
+let timerUI = document.getElementById("game-timer");
+let scoreUI = document.getElementById("score");
+
+//number of orders
+let order1numbersUI = document.getElementById("Order1-numbers");
+let order2numbersUI = document.getElementById("Order2-numbers");
+let order3numbersUI = document.getElementById("Order3-numbers");
+let order4numbersUI = document.getElementById("Order4-numbers");
+let order5numbersUI = document.getElementById("Order5-numbers");
+
+//customer health bar
+let Customer1UI = document.getElementById("Customer1");
+let Customer2UI = document.getElementById("Customer2");
+let Customer3UI = document.getElementById("Customer3");
+let Customer4UI = document.getElementById("Customer4");
+let Customer5UI = document.getElementById("Customer5");
+
 // money sound
 const moneySound = new Audio("common/sounds/money.mp3");
 moneySound.volume = 0.2;
@@ -989,6 +1007,10 @@ orders.push(firstOrder);
 newCustomerSound.play();
 
 function update(time, dt) {
+
+    timerUI.innerHTML = Math.round(180 - time); 
+    scoreUI.innerHTML = game.moneyEarned;
+
     scene.traverse(node => {
         for (const component of node.components) {
             component.update?.(time, dt);
