@@ -33,6 +33,9 @@ await gltfLoader.load('common/models/kitchen.gltf');
 
 //UI controls
 let timerUI = document.getElementById("game-timer");
+// set the timer to 180 sec
+timerUI.innerHTML = 180;
+let timer = 180;
 let scoreUI = document.getElementById("score");
 
 //customer health bar
@@ -992,13 +995,6 @@ const game = new GameStats();
 // max order size is 5
 // an order needs 40 seconds to be completed, no matter the time
 
-// create the first order
-const firstOrder = new Order();
-orders.push(firstOrder);
-
-// play the new order sound
-newCustomerSound.play();
-
 function updateUI(time, dt){
 
     //update health
@@ -1023,7 +1019,19 @@ function updateUI(time, dt){
 
 function update(time, dt) {
 
-    timerUI.innerHTML = Math.round(180 - time); 
+    if (initialized === true) {
+        timer -= dt;
+        timerUI.innerHTML = Math.round(timer);
+
+        if (timer <= 0) {
+            // end of game
+            // stop the game
+            initialized = false;
+            // popup with the score and the option to restart
+            // TODO
+        }
+    }
+
     scoreUI.innerHTML = game.moneyEarned;
 
     updateUI(time,dt);
@@ -1056,7 +1064,7 @@ function update(time, dt) {
 
     // if 20 seconds have passed, spawn a new order
     orderRespawnTimer -= dt;
-    if (orderRespawnTimer <= 0) {
+    if (orderRespawnTimer <= 0 && timer > 0) {
         orderRespawnTimer = currentOrderTimer;
 
         // generate a new order

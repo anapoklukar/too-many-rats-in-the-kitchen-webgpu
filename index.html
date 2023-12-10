@@ -70,6 +70,7 @@
 </div>
 
 <script>
+    let initialized = false;
     let settings = document.getElementById("settings");
     let startscreen = document.getElementById("startscreen");
     let howtoplay = document.getElementById("howtoplay");
@@ -84,6 +85,8 @@
     }
 
     function StartGame(){
+        // set the initialize flag
+        initialized = true;
         startscreen.classList.add("hide");
         let volume = 0.4;
         // music
