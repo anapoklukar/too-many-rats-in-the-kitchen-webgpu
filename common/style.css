@@ -165,6 +165,19 @@ body, html {
     transition: transform 0.4s;
 }
 
+.endScreen{
+    position: fixed;
+    top: 25%;
+    left: 35%;
+    width: 500px;
+    height: 404px;
+    border-radius: 5px;
+    border: 2px solid rgb(255, 255, 255);
+    background: rgb(245, 159, 195); 
+    cursor: pointer;
+    visibility: hidden;
+}
+
 
 .startscreen{
     position: fixed;
@@ -222,6 +235,10 @@ body, html {
 
 .hide{
     visibility: hidden;
+}
+
+.show{
+    visibility: visible;
 }
 
 .open-settings{
