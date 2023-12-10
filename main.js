@@ -979,7 +979,7 @@ const game = new GameStats();
 // 2nd minute: order every 10 seconds
 // 3rd minute: order every 5 seconds
 // max order size is 5
-// an order needs 30 seconds to be completed, no matter the time
+// an order needs 40 seconds to be completed, no matter the time
 
 // create the first order
 const firstOrder = new Order();
