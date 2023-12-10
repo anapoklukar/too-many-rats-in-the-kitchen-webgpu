@@ -1,5 +1,5 @@
-import { LinearAnimator } from './common/engine/animators/LinearAnimator.js';
-import { RotateAnimator } from './common/engine/animators/RotateAnimator.js';
+import { LinearAnimator } from '../animators/LinearAnimator.js';
+import { RotateAnimator } from '../animators/RotateAnimator.js';
 
 export class Chefs {
     constructor({

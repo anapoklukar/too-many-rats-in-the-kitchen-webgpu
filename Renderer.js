@@ -14,7 +14,7 @@ import {
 
 import { BaseRenderer } from './common/engine/renderers/BaseRenderer.js';
 
-import { Light } from './Light.js';
+import { Light } from './common/engine/core/Light.js';
 
 const vertexBufferLayout = {
     arrayStride: 32,

@@ -14,22 +14,22 @@ import {
 } from './common/engine/core.js';
 
 import { Renderer } from './Renderer.js';
-import { Light } from './Light.js';
+import { Light } from './common/engine/core/Light.js';
 import { Physics } from './common/engine/core/Physics.js';
 import {
     calculateAxisAlignedBoundingBox,
     mergeAxisAlignedBoundingBoxes,
 } from './common/engine/core/MeshUtils.js';
-import { Chefs } from './Chefs.js';
-import { Order } from './Order.js';
-import { GameStats } from './GameStats.js';
+import { Chefs } from './common/engine/core/Chefs.js';
+import { Order } from './common/engine/core/Order.js';
+import { GameStats } from './common/engine/core/GameStats.js';
 
 const canvas = document.querySelector('canvas');
 const renderer = new Renderer(canvas);
 await renderer.initialize();
 
 const gltfLoader = new GLTFLoader();
-await gltfLoader.load('common/models/kitchen.gltf');
+await gltfLoader.load('./common/models/kitchen.gltf');
 
 //UI controls
 let timerUI = document.getElementById("game-timer");
@@ -46,31 +46,31 @@ let Customer4UI = document.getElementById("Customer4");
 let Customer5UI = document.getElementById("Customer5");
 
 // money sound
-const moneySound = new Audio("common/sounds/money.mp3");
+const moneySound = new Audio("./common/sounds/money.mp3");
 moneySound.volume = 0.2;
 
 // trash sound
-const trashSound = new Audio("common/sounds/trash.mp3");
+const trashSound = new Audio("./common/sounds/trash.mp3");
 trashSound.volume = 0.2;
 
 // new customer/order sound
-const newCustomerSound = new Audio("common/sounds/newCustomer.mp3");
+const newCustomerSound = new Audio("./common/sounds/newCustomer.mp3");
 newCustomerSound.volume = 0.2;
 
 // click sound
-const clickSound = new Audio("common/sounds/click.wav");
+const clickSound = new Audio("./common/sounds/click.wav");
 clickSound.volume = 0.2;
 
 // kill rat sound
-const killRatSound = new Audio("common/sounds/rat.mp3");
+const killRatSound = new Audio("./common/sounds/rat.mp3");
 killRatSound.volume = 0.2;
 
 // frying pan sound
-const fryingPanSound = new Audio("common/sounds/fryingPan.mp3");
+const fryingPanSound = new Audio("./common/sounds/fryingPan.mp3");
 fryingPanSound.volume = 0.2;
 
 // blender sound
-const blenderSound = new Audio("common/sounds/blender.mp3");
+const blenderSound = new Audio("./common/sounds/blender.mp3");
 blenderSound.volume = 0.2;
 
 // making the kitchen static
